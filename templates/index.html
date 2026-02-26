@@ -1,0 +1,189 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ profile.name }} | Portfolio{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================
+     SECTION 1:  ABOUT ME
+     ============================================================ -->
+<section id="about" class="hero-section">
+    <div class="container">
+        <div class="hero-content">
+            <p class="hero-greeting">Hello, I'm</p>
+            <h1 class="hero-name">{{ profile.name }}</h1>
+            <h2 class="hero-title">{{ profile.title }}</h2>
+            <p class="hero-bio">{{ profile.bio }}</p>
+            <div class="hero-cta">
+                <a href="#contact" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i> Get In Touch
+                </a>
+                <a href="{{ profile.github }}" target="_blank" class="btn btn-outline">
+                    <i class="fab fa-github"></i> View GitHub
+                </a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="code-window">
+                <div class="code-header">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                    <span class="code-title">about_me.py</span>
+                </div>
+                <pre class="code-body"><code><span class="code-keyword">class</span> <span class="code-class">Developer</span>:
+    <span class="code-keyword">def</span> <span class="code-func">__init__</span>(self):
+        self.name = <span class="code-string">"{{ profile.name }}"</span>
+        self.role = <span class="code-string">"{{ profile.title }}"</span>
+        self.loves = [<span class="code-string">"Python"</span>, <span class="code-string">"Flask"</span>, <span class="code-string">"Web Dev"</span>]
+
+    <span class="code-keyword">def</span> <span class="code-func">say_hello</span>(self):
+        <span class="code-keyword">print</span>(<span class="code-string">"Thanks for visiting!"</span>)</code></pre>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 2: SKILLS & TOOLS
+     ============================================================ -->
+{#
+for skill in skills → Loops through each skill dictionary
+skill.name → Prints the skill's name
+skill.icon → Used to build the Devicon CSS class
+endfor → Ends the loop (required in Jinja2!)
+#}
+<section id="skills" class="section skills-section">
+    <div class="container">
+        <h2 class="section-title">
+            <span class="title-icon"><i class="fas fa-tools"></i></span>
+            Skills & Tools
+        </h2>
+        <p class="section-subtitle">Technologies I work with</p>
+        <div class="skills-grid">
+            {% for skill in skills %}
+            <div class="skill-card">
+                <i class="devicon-{{ skill.icon }}-plain colored skill-icon"></i>
+                <span class="skill-name">{{ skill.name }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 3: GITHUB PORTFOLIO
+     ============================================================ -->
+<section id="github" class="section github-section">
+    <div class="container">
+        <h2 class="section-title">
+            <span class="title-icon"><i class="fab fa-github"></i></span>
+            GitHub Portfolio
+        </h2>
+        <p class="section-subtitle">Check out my repositories and contributions</p>
+        <div class="github-content">
+            <div class="github-stats-card">
+                <img
+                    src="https://github-readme-stats.vercel.app/api?username=hariprasadgowda&show_icons=true&theme=tokyonight&hide_border=true&bg_color=0d1117"
+                    alt="GitHub Stats"
+                    class="github-stats-img"
+                >
+            </div>
+            <div class="github-stats-card">
+                <img
+                    src="https://github-readme-stats.vercel.app/api/top-langs/?username=hariprasadgowda&layout=compact&theme=tokyonight&hide_border=true&bg_color=0d1117"
+                    alt="Top Languages"
+                    class="github-stats-img"
+                >
+            </div>
+        </div>
+        <div class="github-cta">
+            <a href="{{ profile.github }}" target="_blank" class="btn btn-primary">
+                <i class="fab fa-github"></i> Visit My GitHub
+            </a>
+        </div>
+    </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 4: LINKEDIN
+     ============================================================ -->
+<section id="linkedin" class="section linkedin-section">
+    <div class="container">
+        <h2 class="section-title">
+            <span class="title-icon"><i class="fab fa-linkedin"></i></span>
+            Let's Connect
+        </h2>
+        <p class="section-subtitle">Find me on LinkedIn for professional networking</p>
+        <div class="linkedin-badge-wrapper">
+            {# LinkedIn's official Profile Badge widget #}
+            <div class="badge-base LI-profile-badge"
+                 data-locale="en_US"
+                 data-size="large"
+                 data-theme="dark"
+                 data-type="HORIZONTAL"
+                 data-vanity="hari-prasad-"
+                 data-version="v1">
+            </div>
+        </div>
+        <div class="linkedin-cta">
+            <a href="{{ profile.linkedin }}" target="_blank" class="btn btn-linkedin">
+                <i class="fab fa-linkedin"></i> View Full Profile
+            </a>
+        </div>
+    </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 5: CONTACT / REACH OUT
+     ============================================================ -->
+
+<section id="contact" class="section contact-section">
+    <div class="container">
+        <h2 class="section-title">
+            <span class="title-icon"><i class="fas fa-envelope"></i></span>
+            Reach Out To Me
+        </h2>
+        <p class="section-subtitle">Have something to say? I'd love to hear from you!</p>
+        <div class="contact-wrapper">
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>{{ profile.email }}</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fab fa-github"></i>
+                    <a href="{{ profile.github }}" target="_blank">GitHub</a>
+                </div>
+                <div class="contact-item">
+                    <i class="fab fa-linkedin"></i>
+                    <a href="{{ profile.linkedin }}" target="_blank">LinkedIn</a>
+                </div>
+            </div>
+            <form class="contact-form" action="{{ url_for('contact') }}" method="POST">
+                <div class="form-group">
+                    <label for="name">Your Name</label>
+                    <input type="text" id="name" name="name" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Your Email</label>
+                    <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Your Message</label>
+                    <textarea id="message" name="message" rows="5" placeholder="Hi Hari, I wanted to say..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-submit">
+                    <i class="fas fa-paper-plane"></i> Send Message
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

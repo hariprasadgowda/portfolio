@@ -23,7 +23,7 @@ PROFILE = {
     "name": "Hari Prasad",
     "title": "Cloud DevOps Engineer",
     "bio": (
-        "Cloud DevOps Engineer with 5 years of experience in designing, automating, "
+        "Cloud DevOps Engineer with 6+ years of experience in designing, automating, "
         "and optimizing mission-critical deployments primarily in Microsoft Azure. "
         "Skilled in CI/CD pipeline development, AKS, Infrastructure as Code (IaC), "
         "and cloud security. Demonstrated ability to improve system reliability, "

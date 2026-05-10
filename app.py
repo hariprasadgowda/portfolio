@@ -1,7 +1,10 @@
 import os
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import resend
+
+# --- SMTP (commented out — Render free tier blocks SMTP ports) ---
+# import smtplib
+# from email.mime.text import MIMEText
+# from email.mime.multipart import MIMEMultipart
 
 from flask import Flask, render_template, request, flash, redirect, url_for
 from dotenv import load_dotenv
@@ -91,55 +94,76 @@ def contact():
 
 
 # ============================================================
-# EMAIL HELPER
+# EMAIL HELPER — Using Resend (HTTPS API, no SMTP ports needed)
 # ============================================================
 
 def send_email(sender_name, sender_email, message_body):
-    smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
-    smtp_port = int(os.getenv("SMTP_PORT", 465))
-    smtp_username = os.getenv("SMTP_USERNAME")
-    smtp_password = os.getenv("SMTP_PASSWORD")
+    """
+    Sends email via Resend API (https://resend.com).
+    Uses HTTPS instead of SMTP — works on Render free tier!
+
+    Setup:
+    1. Sign up at https://resend.com (free: 100 emails/day)
+    2. Get your API key from the dashboard
+    3. Set RESEND_API_KEY in your environment variables
+    """
+    resend.api_key = os.getenv("RESEND_API_KEY")
     recipient_email = os.getenv("RECIPIENT_EMAIL", PROFILE["email"])
 
-    # If email is not configured, log it and return False
-    if not smtp_username or not smtp_password:
-        print("Email not configured! Set SMTP_USERNAME and SMTP_PASSWORD in .env")
+    if not resend.api_key:
+        print("Email not configured! Set RESEND_API_KEY in env")
         print(f"   Message from {sender_name} ({sender_email}): {message_body}")
         return False
 
     try:
-        # Build the email
-        msg = MIMEMultipart()
-        msg["From"] = smtp_username
-        msg["To"] = recipient_email
-        msg["Subject"] = f"Portfolio Contact: Message from {sender_name}"
-
-        body = (
-            f"Name: {sender_name}\n"
-            f"Email: {sender_email}\n\n"
-            f"Message:\n{message_body}"
-        )
-        msg.attach(MIMEText(body, "plain"))
-
-        # Connect to the SMTP server and send
-        # Use SMTP_SSL (port 465) — works on Render and most hosting platforms
-        # Port 587 (STARTTLS) is often blocked by free hosting providers
-        if smtp_port == 465:
-            with smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=30) as server:
-                server.login(smtp_username, smtp_password)
-                server.send_message(msg)
-        else:
-            with smtplib.SMTP(smtp_server, smtp_port, timeout=30) as server:
-                server.starttls()
-                server.login(smtp_username, smtp_password)
-                server.send_message(msg)
-
-        print(f"Email sent from {sender_name} ({sender_email})")
+        params = {
+            "from": "Portfolio Contact <onboarding@resend.dev>",
+            "to": [recipient_email],
+            "subject": f"Portfolio Contact: Message from {sender_name}",
+            "text": (
+                f"Name: {sender_name}\n"
+                f"Email: {sender_email}\n\n"
+                f"Message:\n{message_body}"
+            ),
+        }
+        email = resend.Emails.send(params)
+        print(f"Email sent from {sender_name} ({sender_email}) — ID: {email['id']}")
         return True
 
     except Exception as e:
         print(f"Failed to send email: {e}")
         return False
+
+
+# --- SMTP version (commented out — Render free tier blocks SMTP ports 25, 465, 587) ---
+# def send_email_smtp(sender_name, sender_email, message_body):
+#     smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
+#     smtp_port = int(os.getenv("SMTP_PORT", 465))
+#     smtp_username = os.getenv("SMTP_USERNAME")
+#     smtp_password = os.getenv("SMTP_PASSWORD")
+#     recipient_email = os.getenv("RECIPIENT_EMAIL", PROFILE["email"])
+#     if not smtp_username or not smtp_password:
+#         return False
+#     try:
+#         msg = MIMEMultipart()
+#         msg["From"] = smtp_username
+#         msg["To"] = recipient_email
+#         msg["Subject"] = f"Portfolio Contact: Message from {sender_name}"
+#         body = f"Name: {sender_name}\nEmail: {sender_email}\n\nMessage:\n{message_body}"
+#         msg.attach(MIMEText(body, "plain"))
+#         if smtp_port == 465:
+#             with smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=30) as server:
+#                 server.login(smtp_username, smtp_password)
+#                 server.send_message(msg)
+#         else:
+#             with smtplib.SMTP(smtp_server, smtp_port, timeout=30) as server:
+#                 server.starttls()
+#                 server.login(smtp_username, smtp_password)
+#                 server.send_message(msg)
+#         return True
+#     except Exception as e:
+#         print(f"Failed to send email: {e}")
+#         return False
 
 
 # ============================================================

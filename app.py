@@ -96,7 +96,7 @@ def contact():
 
 def send_email(sender_name, sender_email, message_body):
     smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
-    smtp_port = int(os.getenv("SMTP_PORT", 587))
+    smtp_port = int(os.getenv("SMTP_PORT", 465))
     smtp_username = os.getenv("SMTP_USERNAME")
     smtp_password = os.getenv("SMTP_PASSWORD")
     recipient_email = os.getenv("RECIPIENT_EMAIL", PROFILE["email"])
@@ -122,10 +122,17 @@ def send_email(sender_name, sender_email, message_body):
         msg.attach(MIMEText(body, "plain"))
 
         # Connect to the SMTP server and send
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
-            server.starttls()  # Encrypt the connection
-            server.login(smtp_username, smtp_password)
-            server.send_message(msg)
+        # Use SMTP_SSL (port 465) — works on Render and most hosting platforms
+        # Port 587 (STARTTLS) is often blocked by free hosting providers
+        if smtp_port == 465:
+            with smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=30) as server:
+                server.login(smtp_username, smtp_password)
+                server.send_message(msg)
+        else:
+            with smtplib.SMTP(smtp_server, smtp_port, timeout=30) as server:
+                server.starttls()
+                server.login(smtp_username, smtp_password)
+                server.send_message(msg)
 
         print(f"Email sent from {sender_name} ({sender_email})")
         return True
